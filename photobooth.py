@@ -14,27 +14,13 @@ import tkMessageBox
 import ttk
 from PIL import Image, ImageTk
 import pygame
-from smtplib import SMTP
-from smtplib import SMTPException
-import smtplib
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
 import time
 from multiprocessing import Process
-import cwiid
 
 ###############CHANGE ME###########################
-printer_MAC = "C4:30:00:00:7E:41"
-my_email = 'myemail@gmail.com' # must be gmail account. 
-my_email_password = 'strongpassword'
-subject = 'Graduation 2017'
+printer_MAC = "00-04-48-13-5E-8D"
 ####################################################
 
-def start_wii_script():
-    cmd = "sudo python /home/pi/Pi-Photobooth/photobooth_wii.py &"
-    k = subprocess.Popen(cmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    message =  k.communicate(input)
-    print message[0]
 
 def kill_keyboard():
     cmd = "sudo pkill -f matchbox-keyboard"
@@ -45,8 +31,6 @@ def kill_keyboard():
 def next_overlay():
     global overlay
     global current_position
-    pygame.mixer.music.load("/home/pi/Pi-Photobooth/audio/slide_and_click.mp3")
-    pygame.mixer.music.play()
     current_position = current_position + 1
     if current_position >= len(overlays):
         current_position = 0
@@ -59,8 +43,6 @@ def next_overlay():
 def prev_overlay():
     global overlay
     global current_position
-    pygame.mixer.music.load("/home/pi/Pi-Photobooth/audio/slide_and_click.mp3")
-    pygame.mixer.music.play()
     
     current_position = current_position - 1
     overlay = overlays[current_position]
@@ -75,8 +57,6 @@ def take_picture():
     global current_position
     global overlay
     
-    pygame.mixer.music.load("/home/pi/Pi-Photobooth/audio/CameraClick.mp3")
-    pygame.mixer.music.play()
     output = strftime("/home/pi/Pi-Photobooth/photos/image-%d-%m_%H_%M_%S.png", gmtime())
     time.sleep(.3)
     camera.stop_preview()
@@ -108,6 +88,12 @@ def new_picture():
     current_position = 0
     loadImage(latest_photo)
     overlay = ""
+    photo3 = Tkinter.PhotoImage(file='/home/pi/Pi-Photobooth/images/button_new.gif')
+    b3 = Tkinter.Button(master, text="Take Picture",command=take_picture,image=photo3)
+    b3.image = photo3
+    b3.pack()
+
+
     
 def remove():
     global overlay
@@ -120,7 +106,7 @@ def print_photo():
 
     top = Tkinter.Tk()
     top.title("Printing")
-    msg = Tkinter.Label(top, text="Sending to printer. Please wait 1-2 minutes.",width=50,background='#B1B1B1')
+    msg = Tkinter.Label(top, text="Sending to printer. Please wait a minute.",width=50,background='#B1B1B1')
     msg.pack()
     top.geometry("%dx%d%+d%+d" % (400, 100, 250, 125))
     top.configure(background='#B1B1B1')
@@ -145,69 +131,6 @@ def print_photo():
         
     return True
     
-def get_email_address():
-    
-    top = Tkinter.Tk()
-    top.title("Email")
-    msg = Tkinter.Label(top, text="Enter Email Address.",width=50,background='#B1B1B1')
-    msg.pack()
-    ttk.e = Tkinter.Entry(top,width=50)
-    ttk.e.pack()
-    
-    b4 = Tkinter.Button(top, text='Send', command=lambda: send_picture(top))
-    b4.pack()
-   
-    top.geometry("%dx%d%+d%+d" % (400, 100, 250, 125))
-    top.configure(background='#B1B1B1')
-    lower(top)
-    subprocess.Popen(['matchbox-keyboard'])
-    return
-
-def send_picture(toplevel):
-    global output
-    global my_email
-    global my_email_password
-    global subject
-    master.config(cursor="watch")
-    master.config(cursor="watch")
-    
-    #kill keyboard if its still there
-    email_address = ttk.e.get()
-    toplevel.destroy()
-    kill_keyboard()
-    print email_address
-    
-    toaddr = email_address
-    me = my_email # redacted
-    
-    msg = MIMEMultipart()
-    msg['Subject'] = subject
-    msg['From'] = my_email
-    msg['To'] = toaddr
-    msg.preamble = "Photo @ " 
-
-    fp = open(output, 'rb')
-    img = MIMEImage(fp.read())
-    fp.close()
-    msg.attach(img)
-
-    try:
-       s = smtplib.SMTP('smtp.gmail.com',587)
-       s.ehlo()
-       s.starttls()
-       s.ehlo()
-       s.login(user = my_email,password = my_email_password)
-       
-       s.sendmail(me, toaddr, msg.as_string())
-       s.quit()
-       master.config(cursor="")
-       tkMessageBox.showinfo("Info", "Email sent")
- 
-    except SMTPException as error:
-          master.config(cursor="")
-          tkMessageBox.showerror("Error", "Error: unable to send email :  {err}".format(err=error))
-          print "Error: unable to send email :  {err}".format(err=error)
-
 def center(toplevel):
     toplevel.update_idletasks()
     w = toplevel.winfo_screenwidth()
@@ -236,7 +159,6 @@ def loadImage(latest_photo):
 
   
 current_position = 0
-pygame.mixer.init()
 
 
 #reset image
@@ -244,11 +166,12 @@ copyfile('/home/pi/Pi-Photobooth/images/loading.gif', '/home/pi/Pi-Photobooth/im
 
     
 overlay = ""
-next_overlay_btn = Button(23)
-take_pic_btn = Button(11)
+#no buttons connected.
+#next_overlay_btn = Button(23)
+#take_pic_btn = Button(11)
 
 
-next_overlay_btn.when_pressed = next_overlay
+#next_overlay_btn.when_pressed = next_overlay
 take_pic_btn.when_pressed = take_picture
 
 camera = PiCamera()
@@ -263,20 +186,6 @@ latest_photo = '/home/pi/Pi-Photobooth/images/latest.gif'
 p = Process(target=start_wii_script)
 p.start()
    
-
-next_overlay_Wii_button = Button(17)
-picture_Wii_button = Button(9)
-prev_overlay_Wii_Button = Button(21)
-newpic_Wii_button = Button(20)
-rem_overlays_Wii_button = Button(16)
-
-newpic_Wii_button.when_pressed = new_picture
-next_overlay_Wii_button.when_pressed = next_overlay
-prev_overlay_Wii_Button.when_pressed = prev_overlay
-picture_Wii_button.when_pressed = take_picture
-
-
-rem_overlays_Wii_button.when_pressed = remove
 master = Tkinter.Tk()
 master.wm_title(subject)
 master.attributes("-fullscreen", True)
@@ -288,19 +197,15 @@ c.pack()
 
 photo1 = Tkinter.PhotoImage(file='/home/pi/Pi-Photobooth/images/button_new.gif')
 photo2 = Tkinter.PhotoImage(file='/home/pi/Pi-Photobooth/images/button_print.gif')
-photo3 = Tkinter.PhotoImage(file='/home/pi/Pi-Photobooth/images/button_email.gif')
 
 b1 = Tkinter.Button(master, text="New Picture",command=new_picture,image=photo1)
 b2 = Tkinter.Button(master, text="Print Picture",command=print_photo,image=photo2)
-b3= Tkinter.Button(master, text="Email Picture",command=get_email_address,image=photo3)
 
 b1.image = photo1
 b2.image = photo2
-b3.image = photo3
 
 b1.pack()
 b2.pack()
-b3.pack()
 
 
 Tkinter.mainloop( )
