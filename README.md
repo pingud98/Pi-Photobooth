@@ -4,21 +4,14 @@
 
 This project is based off the All Seeing Pi project by the Raspberry Pi Foundation.
 
-In general, the changes/additions I made were:
+In general, the changes/additions I made to the changes that were made by @mdegrazia were:
 
-1) Added in the ability to print the photo to a bluetooth printer
+1) removed the audio
+2) removed the wii functions
 
-2) Added in the ability to email the photo
-
-3) Added in support for the Wii Remote which includes the ability to go to previous/next overlay, remove the overlays, take a picture and start a new picture
-
-4) Added in some sound effects
-
-5) Added in some graphics to the GUI
-
-6) Added in some "snap chat" type filters to overlay the pictures (note googly eyes on dog below)
-
-7) Uses a kill button to stop the Photobooth since it runs full screen
+3) added an on screen button to take photos
+4) removed the GPIO functions for buttons
+5) killed the kill button functionality
 
 See the full blog post here for details https://anotherpiblog.blogspot.com/2017/06/raspberry-pi-photobooth-with-bluetooth.html
 ## License
