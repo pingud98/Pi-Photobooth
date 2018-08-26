@@ -34,6 +34,7 @@ def print_photo():
     
 # Tell the take picture button what to do
 def take_picture():
+    q = subprocess.Popen('pkill fbcp', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     global output
     output = strftime("/home/pi/simplebooth/image-%d-%m%H:%M.jpg", gmtime())
     camera.stop_preview()
@@ -48,17 +49,24 @@ def take_picture():
 #    output_overlay(output)
 
     # Save a smaller gif
-    size = 320, 200
+    size = 400, 600
     gif_img = Image.open(output)
     gif_img.thumbnail(size, Image.ANTIALIAS)
     gif_img.save(latest_photo, 'gif')
 
     # Set the gui picture to this picture
+    window.show()
+    app.hide()
     your_pic.set(latest_photo)
+    your_picw.set(latest_photo)
 
 
 def new_picture():
-    camera.start_preview(fullscreen=False, window = (100, 20, 640, 480))
+    window.hide()
+    app.show()
+    camera.start_preview()
+    q = subprocess.Popen('/home/pi/simplebooth/./fbcp', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
 #    preview_overlay(camera, overlay)
 
 
@@ -83,10 +91,16 @@ latest_photo = '/home/pi/simplebooth/latest.gif'
 ready_photo = '/home/pi/simplebooth/countdown.gif'
 black_photo = '/home/pi/simplebooth/black.gif'
 
-app = App("The JAM Wedding Photo Booth", 320, 300)
+app = App("The JAM Wedding Photo Booth", 480, 320)
+window = Window(app, title = "Backup")
+window.hide()
 #app.attributes("-fullscreen", True)
 your_pic = Picture(app, latest_photo)
+your_picw = Picture(window, latest_photo)
 new_pic = PushButton(app, new_picture, text="New picture")
 print_pic = PushButton(app, print_photo, text="Print picture")
+new_picw = PushButton(window, new_picture, text="New picture")
+print_picw = PushButton(window, print_photo, text="Print picture")
+app.tk.attributes("-fullscreen",True)
+window.tk.attributes("-fullscreen",True)
 app.display()
-
