@@ -2,6 +2,8 @@
 
 This project is based off the All Seeing Pi project by the Raspberry Pi Foundation and the changes by @mdegrazia.
 
+![The finished article](https://github.com/pingud98/simplebooth/raw/master/IMG_20180828_092642.jpg)
+
 In general, the changes/additions I made to the changes that were made by @mdegrazia were:
 
 1) removed the audio
